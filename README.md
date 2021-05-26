@@ -1,34 +1,35 @@
-# ThirdPerson_Male_Avatar
- Third Person avatar with Adobe Maximo Animations
+<h1>Third Person Animated Avatar</h1>
 
+<h3>Third Person Avatar with Adobe Maximo Animations</h3>
 
-Animations included:
--Idle
--Walking
--Running
--Turning
--Jumping
--Crouching
+<dl>
+	<dt>Animations included:</dt>
+	<dd>-Idle</dd>
+	<dd>-Walking</dd>
+	<dd>-Running</dd>
+	<dd>-Turning</dd>
+	<dd>-Jumping</dd>
+	<dd>-Crouching</dd>
+</dl>
 
+<h3>Initialization</h3>
 
-Initialization:
--Make sure you have Cinemachine plugins installed
--Add CinemachineBrain component to the Main Camera
--Create "Ground" Layer and set it as the layer of the ground in your environment.
--Place "Male_Prototype" prefab on the ground
-	Under Third Person Movement Script:
-	-Set Cam attribute to the Main Camera
-	-Set Anim attribute to Male_Prototype_V1 a
-	-Set Turn Smooth Timer to 0.1
-	-Set Speed to 6
-	-Set Mass to 5
-	-Set Ground Check Distance to 0.01
-	-Set Ground Mask to Ground
-	-Set Gravity to -9.81
-	-Set Jump Height to 8
--Place CM FreeLook1 prefab
-	Under CinemachineFreeLook:
-	-Set Follow attribute to follow the Armature of the "Male_Prototype"
-	-Set Look At attribute to look at Head of the "Male_Prototype"
-
-And Enjoy :)
+<dl>
+    <dt>-Make sure you have Cinemachine plugins installed.</dt>
+    <dt>-Create "Ground" Layer and set it as the layer of the ground in your environment.</dt>
+    <dt>-Place "Male_Prototype" prefab on the ground.</dt>
+    <dd>Under Third Person Movement Script:</dd>
+    <dd>-Set Cam attribute to the Main Camera</dd>
+    <dd>-Set Anim attribute to Male_Prototype_V1</dd>
+    <dd>-Set Turn Smooth Timer to 0.1</dd>
+    <dd>-Set Speed to 6</dd>
+    <dd>-Set Mass to 5</dd>
+    <dd>-Set Ground Check Distance to 0.01</dd>
+    <dd>-Set Ground Mask to Ground</dd>
+    <dd>-Set Gravity to -9.81</dd>
+    <dd>-Set Jump Height to 8</dd>
+    <dt>-Place CM FreeLook1 prefab</dt>
+    <dd>Under CinemachineFreeLook:</dd>
+    <dd>-Set Follow attribute to follow the Armature of the "Male_Prototype"</dd>
+    <dd>-Set Look At attribute to look at Head of the "Male_Prototype"</dd>
+</dl>
