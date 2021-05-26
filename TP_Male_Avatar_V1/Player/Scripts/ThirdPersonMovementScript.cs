@@ -6,29 +6,24 @@ public class ThirdPersonMovementScript : MonoBehaviour
 {
     public CharacterController controller;
     public Transform cam;
-    public float speed = 6f;
-    public float turnSmoothTime = 0.1f;
-    float turnSmoothVelocity;
     public Animator anim;
-    Vector3 previous;
 
+    [SerializeField] private float turnSmoothTime = 0.1f;
+    [SerializeField] private float speed = 6f;
     [SerializeField] private float Mass;
     [SerializeField] private float groundCheckDistance;
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private float gravity;
     [SerializeField] private float jumpHeight;
-    [SerializeField] private float jumpanimationdelay;
-
-
+    
+    private  Vector3 previous;
+    private float turnSmoothVelocity;
+    private float jumpanimationdelay;
     private Vector3 vel;
     private bool isGrounded;
-
-    private float timer;
-
+    private float WalkAnimationDelaytimer;
     private float landmoveTimer;
-
     private bool jumping;
-
     private bool hasDirectionalInput;
 
 
@@ -64,13 +59,13 @@ public class ThirdPersonMovementScript : MonoBehaviour
             vel.y = -2f;
         }
         if(isGrounded){
-            //Update Speed of character controller depending on current state or transition
+            //Update Speed of character controller depending on current state or transition of animator
             UpdateSpeed();
-            if(direction.x>0 || CameraAngle(direction)=="right"){
+            if(direction.x>0 || CameraAngle(direction)=="right"){ //if holding right arrow and in idle, turn to the right
                 anim.SetBool("TurningRight",true);
                 turnSmoothTime = 0.3f;
             }
-            else if(direction.x<0|| CameraAngle(direction)=="left"){
+            else if(direction.x<0|| CameraAngle(direction)=="left"){//if holding left arrow and in idle, turn to the left
                 anim.SetBool("TurningLeft",true);
                 turnSmoothTime = 0.3f;
             }
@@ -79,25 +74,15 @@ public class ThirdPersonMovementScript : MonoBehaviour
                 anim.SetBool("TurningLeft",false);
                 turnSmoothTime = 0.1f;
             }
-            // Debug.Log(" Target Angle in degrees: "+Mathf.Atan2(direction.x,direction.z) *Mathf.Rad2Deg+cam.eulerAngles.y);
-            ///Debug.Log(" Current Avatar Angle in degrees: "+transform.eulerAngles.y);
-            //Debug.Log(" Difference Between in degrees: "+((Mathf.Atan2(direction.x,direction.z) *Mathf.Rad2Deg+cam.eulerAngles.y)-(transform.eulerAngles.y)));
-            //Debug.Log(" Target Angle in Rads: "+(Mathf.Atan2(direction.x,direction.z)+cam.eulerAngles.y*Mathf.Deg2Rad));
-            //Debug.Log(" Current Avatar Angle: "+transform.eulerAngles.y*Mathf.Deg2Rad);
-            //Debug.Log(" Difference Between in rads: "+((Mathf.Atan2(direction.x,direction.z))-(transform.eulerAngles.y*Mathf.Deg2Rad)));
-            //Debug.Log(" Difference Between in rads: "+((Mathf.Atan2(direction.x,direction.z)+cam.eulerAngles.y*Mathf.Deg2Rad)-(transform.eulerAngles.y*Mathf.Deg2Rad)));
-
-
-            if(direction.magnitude >= 0.1f && !anim.GetCurrentAnimatorStateInfo(0).IsName("Run To Stop")&&!anim.GetAnimatorTransitionInfo(0).IsName("Jump (1) -> Breathing Idle")){
-                if(timer<0){
-                    timer = 1f;
+            if(direction.magnitude >= 0.1f && !anim.GetCurrentAnimatorStateInfo(0).IsName("Run To Stop")&&!anim.GetAnimatorTransitionInfo(0).IsName("Jump (1) -> Breathing Idle")){//if there is sufficient User movement input
+                if(WalkAnimationDelaytimer<0){//Reset walk animation delay timer
+                    WalkAnimationDelaytimer = 1f;
                     anim.SetBool("CanWalk",false);
                 }
                 float targetAngle = Mathf.Atan2(direction.x,direction.z) * Mathf.Rad2Deg+cam.eulerAngles.y;
-                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y,targetAngle, ref turnSmoothVelocity , turnSmoothTime);
-                //Debug.Log(Mathf.Abs(turnSmoothVelocity));
-                if(Mathf.Abs(turnSmoothVelocity)>600){
-                    Debug.Log("Pivot Animation");
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y,targetAngle, ref turnSmoothVelocity , turnSmoothTime); //calculating smoothed angle to move towards
+                //for future 180 animation
+                if(Mathf.Abs(turnSmoothVelocity)>600){ 
                     anim.SetBool("180Turn",true);
                 }
                 else{
@@ -109,20 +94,18 @@ public class ThirdPersonMovementScript : MonoBehaviour
                 Vector3 movedir = Quaternion.Euler(0f,targetAngle,0f)*Vector3.forward;
                 controller.Move(movedir.normalized * speed * Time.deltaTime);
             }
-            else if(direction.magnitude < 0.1f){
+            else if(direction.magnitude < 0.1f){//If User movement input is insufficient set directional input false
                 anim.SetBool("hasDirection",false);
                 hasDirectionalInput = false;
             }
-            timer-=Time.deltaTime;
-            if(timer<0){
+            WalkAnimationDelaytimer-=Time.deltaTime;
+            if(WalkAnimationDelaytimer<0){//if walk animation delay timer reaches zero , allow walk animation to trigger
                 anim.SetBool("CanWalk",true);
             }
-
-            //Debug.Log(timer);
+            //calculating velocity from previous position to the updated
             float velocity = Vector3.Distance(previous,transform.position)/Time.deltaTime;
             previous = transform.position;
             anim.SetFloat("Velocity",velocity);
-            //Debug.Log(velocity);
             
             if(isControlKeyDown){//Check if Ctrl or C is pressed for crouching animations
                 speed = 3f;
@@ -148,16 +131,10 @@ public class ThirdPersonMovementScript : MonoBehaviour
                     anim.SetBool("isJumping",false);
                     jumping=false;
                 }
-                if(isShiftKeyDown){
-                    //jumpanimationdelay = 0.05f;
-                    if(jumping==true){
-                        //anim.SetBool("isJumping",false);
-                        //jumping=false;
-                    }
+                if(isShiftKeyDown){//If shift key is pressed increase speed and reduce turnsmooth
                     speed = 10f;
                     turnSmoothTime = 0.3f;
                     anim.SetBool("ShiftKeyDown",true);
-                    //anim.SetBool("isJumping",false);
                 }
                 else{
                     speed = 6f;
@@ -165,17 +142,14 @@ public class ThirdPersonMovementScript : MonoBehaviour
                     anim.SetBool("ShiftKeyDown",false);
                 }
                 anim.SetBool("isCrouched",false);
-            }
-               
-                
-               
+            }         
         }
-       
         vel.y+= gravity*Mass*Time.deltaTime;
         controller.Move(vel*Time.deltaTime);
-
     }
-
+    //////////////////////////////////////////////////
+    //Animation level check constraints for jumping//
+    ////////////////////////////////////////////////
     private bool Jumpable(){
         if(!anim.GetCurrentAnimatorStateInfo(0).IsName("Jump (1)")
             &&!anim.GetCurrentAnimatorStateInfo(0).IsName("Jump (2)")
@@ -217,10 +191,16 @@ public class ThirdPersonMovementScript : MonoBehaviour
             return false;
         }
     }
+    /////////////////////////////////////
+    //Function to add jump force to CC//
+    ///////////////////////////////////
     private void Jumpdelay(){
             vel.y = Mathf.Sqrt(jumpHeight*-2*gravity);        
     }
 
+    ///////////////////////////////////////////////////////////
+    //Update CC speed depending on current state of animator//
+    /////////////////////////////////////////////////////////
     private void UpdateSpeed(){
         if(anim.GetCurrentAnimatorStateInfo(0).IsName("Jump (1)")){
             speed = 0.0f;
@@ -235,7 +215,11 @@ public class ThirdPersonMovementScript : MonoBehaviour
             speed = 8f;
         }
     }
-
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Function to determing which turning animation to play if the angle between the Avatar and the camera reaches a certain degree//
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //STILL IN PROGRESS//
+    ////////////////////
     private string CameraAngle(Vector3 dir){
         /*
         Debug.Log(((Mathf.Atan2(dir.x,dir.z)+cam.eulerAngles.y*Mathf.Deg2Rad)-(transform.eulerAngles.y*Mathf.Deg2Rad)));
