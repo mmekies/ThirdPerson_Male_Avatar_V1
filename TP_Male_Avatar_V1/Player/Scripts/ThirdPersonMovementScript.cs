@@ -31,7 +31,7 @@ public class ThirdPersonMovementScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        timer = 0;
+        WalkAnimationDelaytimer = 0;
         landmoveTimer = 0;
         jumping = false;
         hasDirectionalInput = false;
